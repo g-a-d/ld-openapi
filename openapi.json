@@ -13,7 +13,7 @@
       "name": "Apache 2.0",
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version": "4.0.0"
+    "version": "5.0.0"
   },
   "host": "app.launchdarkly.com",
   "basePath": "/api/v2",
@@ -729,10 +729,10 @@
         ]
       }
     },
-    "/projects/{projectKey}/flags/{featureFlagKey}/environments/{environmentKey}/approval-requests": {
+    "/projects/{projectKey}/flags/{featureFlagKey}/environments/{environmentKey}/scheduled-changes": {
       "get": {
-        "operationId": "getFeatureFlagApprovalRequests",
-        "summary": "Get all approval requests for a feature flag",
+        "summary": "Get all scheduled workflows for a feature flag by key.",
+        "operationId": "getFlagConfigScheduledChanges",
         "parameters": [
           {
             "$ref": "#/parameters/ProjectKey"
@@ -747,46 +747,9 @@
         "responses": {
           "200": {
             "schema": {
-              "$ref": "#/definitions/FeatureFlagApprovalRequests"
+              "$ref": "#/definitions/FeatureFlagScheduledChanges"
             },
-            "description": "Feature flag approval requests response"
-          },
-          "401": {
-            "$ref": "#/responses/Standard401"
-          },
-          "404": {
-            "$ref": "#/responses/Standard404"
-          }
-        },
-        "tags": [
-          "Feature flags"
-        ]
-      }
-    },
-    "/projects/{projectKey}/flags/{featureFlagKey}/environments/{environmentKey}/approval-requests/{featureFlagApprovalRequestId}": {
-      "get": {
-        "operationId": "getFeatureFlagApprovalRequest",
-        "summary": "Get a single approval request for a feature flag",
-        "parameters": [
-          {
-            "$ref": "#/parameters/ProjectKey"
-          },
-          {
-            "$ref": "#/parameters/FeatureFlagKey"
-          },
-          {
-            "$ref": "#/parameters/EnvironmentKey"
-          },
-          {
-            "$ref": "#/parameters/FeatureFlagApprovalRequestId"
-          }
-        ],
-        "responses": {
-          "200": {
-            "schema": {
-              "$ref": "#/definitions/FeatureFlagApprovalRequests"
-            },
-            "description": "Feature flag approval request response"
+            "description": "A list of scheduled changes for feature flag response."
           },
           "401": {
             "$ref": "#/responses/Standard401"
@@ -800,8 +763,48 @@
         ]
       },
       "post": {
-        "operationId": "postFeatureFlagApprovalRequest",
-        "summary": "Create an approval request for a feature flag",
+        "summary": "Creates a new scheduled change for a feature flag.",
+        "operationId": "postFlagConfigScheduledChanges",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectKey"
+          },
+          {
+            "$ref": "#/parameters/FlagConfigScheduledChangesPostBody"
+          },
+          {
+            "$ref": "#/parameters/FeatureFlagKey"
+          },
+          {
+            "$ref": "#/parameters/EnvironmentKey"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "A scheduled change for feature flag response.",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagScheduledChange"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/Standard400"
+          },
+          "401": {
+            "$ref": "#/responses/Standard401"
+          },
+          "409": {
+            "$ref": "#/responses/Standard409"
+          }
+        },
+        "tags": [
+          "Feature flags"
+        ]
+      }
+    },
+    "/projects/{projectKey}/flags/{featureFlagKey}/environments/{environmentKey}/scheduled-changes-conflicts": {
+      "post": {
+        "summary": "Lists conflicts between the given instructions and any existing scheduled changes for the feature flag. The actual HTTP verb should be REPORT, not POST.",
+        "operationId": "getFlagConfigScheduledChangesConflicts",
         "parameters": [
           {
             "$ref": "#/parameters/ProjectKey"
@@ -813,18 +816,52 @@
             "$ref": "#/parameters/EnvironmentKey"
           },
           {
-            "$ref": "#/parameters/FeatureFlagApprovalRequestId"
-          },
-          {
-            "$ref": "#/parameters/FeatureFlagApprovalRequestPostRequest"
+            "$ref": "#/parameters/FlagConfigScheduledChangesConflictsBody"
           }
         ],
         "responses": {
           "200": {
             "schema": {
-              "$ref": "#/definitions/FeatureFlagApprovalRequest"
+              "$ref": "#/definitions/FeatureFlagScheduledChangesConflicts"
             },
-            "description": "Feature flag approval request response"
+            "description": "Scheduled changes conflict response"
+          },
+          "401": {
+            "$ref": "#/responses/Standard401"
+          },
+          "404": {
+            "$ref": "#/responses/Standard404"
+          }
+        },
+        "tags": [
+          "Feature flags"
+        ]
+      }
+    },
+    "/projects/{projectKey}/flags/{featureFlagKey}/environments/{environmentKey}/scheduled-changes/{scheduledChangeId}": {
+      "get": {
+        "summary": "Get a scheduled change on a feature flag by id.",
+        "operationId": "getFlagConfigScheduledChange",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectKey"
+          },
+          {
+            "$ref": "#/parameters/FeatureFlagKey"
+          },
+          {
+            "$ref": "#/parameters/EnvironmentKey"
+          },
+          {
+            "$ref": "#/parameters/ScheduledChangeId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagScheduledChange"
+            },
+            "description": "A scheduled change for feature flag response."
           },
           "401": {
             "$ref": "#/responses/Standard401"
@@ -837,24 +874,62 @@
           "Feature flags"
         ]
       },
-      "delete": {
-        "operationId": "deleteFeatureFlagApprovalRequest",
-        "summary": "Delete an approval request for a feature flag",
+      "patch": {
+        "summary": "Updates an existing scheduled-change on a feature flag in an environment.",
+        "operationId": "patchFlagConfigScheduledChange",
         "parameters": [
           {
             "$ref": "#/parameters/ProjectKey"
           },
           {
+            "$ref": "#/parameters/FeatureFlagKey"
+          },
+          {
+            "$ref": "#/parameters/FlagConfigScheduledChangesPatchBody"
+          },
+          {
             "$ref": "#/parameters/EnvironmentKey"
+          },
+          {
+            "$ref": "#/parameters/ScheduledChangeId"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "A Scheduled change for feature flag response.",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagScheduledChange"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/Standard400"
+          },
+          "401": {
+            "$ref": "#/responses/Standard401"
+          },
+          "409": {
+            "$ref": "#/responses/Standard409"
+          }
+        },
+        "tags": [
+          "Feature flags"
+        ]
+      },
+      "delete": {
+        "summary": "Delete a scheduled change on a feature flag in an environment.",
+        "operationId": "deleteFlagConfigScheduledChanges",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectKey"
           },
           {
             "$ref": "#/parameters/FeatureFlagKey"
           },
           {
-            "$ref": "#/parameters/FeatureFlagApprovalRequestId"
+            "$ref": "#/parameters/EnvironmentKey"
           },
           {
-            "$ref": "#/parameters/FeatureFlagApprovalRequestPostRequest"
+            "$ref": "#/parameters/ScheduledChangeId"
           }
         ],
         "responses": {
@@ -873,10 +948,10 @@
         ]
       }
     },
-    "/projects/{projectKey}/flags/{featureFlagKey}/environments/{environmentKey}/approval-requests/{featureFlagApprovalRequestId}/apply": {
-      "post": {
-        "operationId": "postApplyFeatureFlagApprovalRequest",
-        "summary": "Apply approval request for a feature flag",
+    "/projects/{projectKey}/flags/{featureFlagKey}/environments/{environmentKey}/approval-requests": {
+      "get": {
+        "operationId": "getApprovalRequests",
+        "summary": "Get all approval requests for a feature flag config",
         "parameters": [
           {
             "$ref": "#/parameters/ProjectKey"
@@ -886,20 +961,14 @@
           },
           {
             "$ref": "#/parameters/EnvironmentKey"
-          },
-          {
-            "$ref": "#/parameters/FeatureFlagApprovalRequestId"
-          },
-          {
-            "$ref": "#/parameters/FeatureFlagApprovalRequestApplyPostRequest"
           }
         ],
         "responses": {
           "200": {
             "schema": {
-              "$ref": "#/definitions/FeatureFlagApprovalRequests"
+              "$ref": "#/definitions/ApprovalRequests"
             },
-            "description": "Feature flag approval request applied response"
+            "description": "Approval requests response"
           },
           "401": {
             "$ref": "#/responses/Standard401"
@@ -913,10 +982,10 @@
         ]
       }
     },
-    "/projects/{projectKey}/flags/{featureFlagKey}/environments/{environmentKey}/approval-requests/{featureFlagApprovalRequestId}/review": {
-      "post": {
-        "operationId": "postReviewFeatureFlagApprovalRequest",
-        "summary": "Review approval request for a feature flag",
+    "/projects/{projectKey}/flags/{featureFlagKey}/environments/{environmentKey}/approval-requests/{approvalRequestId}": {
+      "get": {
+        "operationId": "getApprovalRequest",
+        "summary": "Get a single approval request for a feature flag config",
         "parameters": [
           {
             "$ref": "#/parameters/ProjectKey"
@@ -928,18 +997,168 @@
             "$ref": "#/parameters/EnvironmentKey"
           },
           {
-            "$ref": "#/parameters/FeatureFlagApprovalRequestId"
-          },
-          {
-            "$ref": "#/parameters/FeatureFlagApprovalRequestReviewPostRequest"
+            "$ref": "#/parameters/ApprovalRequestId"
           }
         ],
         "responses": {
           "200": {
             "schema": {
-              "$ref": "#/definitions/FeatureFlagApprovalRequests"
+              "$ref": "#/definitions/ApprovalRequests"
             },
-            "description": "Feature flag approval request reviewed response"
+            "description": "Approval request response"
+          },
+          "401": {
+            "$ref": "#/responses/Standard401"
+          },
+          "404": {
+            "$ref": "#/responses/Standard404"
+          }
+        },
+        "tags": [
+          "Feature flags"
+        ]
+      },
+      "post": {
+        "operationId": "postApprovalRequest",
+        "summary": "Create an approval request for a feature flag config",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectKey"
+          },
+          {
+            "$ref": "#/parameters/FeatureFlagKey"
+          },
+          {
+            "$ref": "#/parameters/EnvironmentKey"
+          },
+          {
+            "$ref": "#/parameters/ApprovalRequestId"
+          },
+          {
+            "$ref": "#/parameters/ApprovalRequestPostRequest"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/ApprovalRequest"
+            },
+            "description": "Approval request response"
+          },
+          "401": {
+            "$ref": "#/responses/Standard401"
+          },
+          "404": {
+            "$ref": "#/responses/Standard404"
+          }
+        },
+        "tags": [
+          "Feature flags"
+        ]
+      },
+      "delete": {
+        "operationId": "deleteApprovalRequest",
+        "summary": "Delete an approval request for a feature flag config",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectKey"
+          },
+          {
+            "$ref": "#/parameters/EnvironmentKey"
+          },
+          {
+            "$ref": "#/parameters/FeatureFlagKey"
+          },
+          {
+            "$ref": "#/parameters/ApprovalRequestId"
+          },
+          {
+            "$ref": "#/parameters/ApprovalRequestPostRequest"
+          }
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/responses/Standard204"
+          },
+          "401": {
+            "$ref": "#/responses/Standard401"
+          },
+          "404": {
+            "$ref": "#/responses/Standard404"
+          }
+        },
+        "tags": [
+          "Feature flags"
+        ]
+      }
+    },
+    "/projects/{projectKey}/flags/{featureFlagKey}/environments/{environmentKey}/approval-requests/{approvalRequestId}/apply": {
+      "post": {
+        "operationId": "postApplyApprovalRequest",
+        "summary": "Apply approval request for a feature flag config",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectKey"
+          },
+          {
+            "$ref": "#/parameters/FeatureFlagKey"
+          },
+          {
+            "$ref": "#/parameters/EnvironmentKey"
+          },
+          {
+            "$ref": "#/parameters/ApprovalRequestId"
+          },
+          {
+            "$ref": "#/parameters/ApprovalRequestApplyPostRequest"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/ApprovalRequests"
+            },
+            "description": "Approval request applied response"
+          },
+          "401": {
+            "$ref": "#/responses/Standard401"
+          },
+          "404": {
+            "$ref": "#/responses/Standard404"
+          }
+        },
+        "tags": [
+          "Feature flags"
+        ]
+      }
+    },
+    "/projects/{projectKey}/flags/{featureFlagKey}/environments/{environmentKey}/approval-requests/{approvalRequestId}/review": {
+      "post": {
+        "operationId": "postReviewApprovalRequest",
+        "summary": "Review approval request for a feature flag config",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectKey"
+          },
+          {
+            "$ref": "#/parameters/FeatureFlagKey"
+          },
+          {
+            "$ref": "#/parameters/EnvironmentKey"
+          },
+          {
+            "$ref": "#/parameters/ApprovalRequestId"
+          },
+          {
+            "$ref": "#/parameters/ApprovalRequestReviewPostRequest"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/ApprovalRequests"
+            },
+            "description": "Approval request reviewed response"
           },
           "401": {
             "$ref": "#/responses/Standard401"
@@ -1330,7 +1549,7 @@
           }
         },
         "tags": [
-          "Users"
+          "UserRecord"
         ]
       },
       "delete": {
@@ -3199,6 +3418,22 @@
           "items": {
             "$ref": "#/definitions/Id"
           }
+        },
+        "_lastSeen": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1469326565348,
+          "description": "A unix epoch time in milliseconds specifying the last time this member was active in LaunchDarkly."
+        },
+        "_lastSeenMetadata": {
+          "type": "object",
+          "properties": {
+            "tokenId": {
+              "type": "string",
+              "example": "5fd2a1ee05600316d5cb3e96",
+              "description": "If the last time this member accessed LaunchDarkly was using the REST API, this value will be set to the ID of the personal access token used."
+            }
+          }
         }
       }
     },
@@ -3510,7 +3745,7 @@
         }
       }
     },
-    "FeatureFlagApprovalRequests": {
+    "ApprovalRequests": {
       "type": "object",
       "properties": {
         "_links": {
@@ -3519,12 +3754,12 @@
         "items": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/FeatureFlagApprovalRequest"
+            "$ref": "#/definitions/ApprovalRequest"
           }
         }
       }
     },
-    "FeatureFlagApprovalRequest": {
+    "ApprovalRequest": {
       "type": "object",
       "properties": {
         "_id": {
@@ -3542,11 +3777,11 @@
           "description": "The id of the member that requested the change"
         },
         "reviewStatus": {
-          "$ref": "#/definitions/FeatureFlagApprovalRequestReviewStatus"
+          "$ref": "#/definitions/ApprovalRequestReviewStatus"
         },
         "status": {
           "type": "string",
-          "description": "| Name     | Description |\n| --------:| ----------- |\n| pending  | the feature flag approval request has not been applied yet |\n| completed| the feature flag approval request has been applied successfully |\n| failed   | the feature flag approval request has been applied but the changes were not applied successfully |\n",
+          "description": "| Name     | Description |\n| --------:| ----------- |\n| pending  | the approval request has not been applied yet |\n| completed| the approval request has been applied successfully |\n| failed   | the approval request has been applied but the changes were not applied successfully |\n",
           "enum": [
             "pending",
             "completed",
@@ -3564,7 +3799,7 @@
         "allReviews": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/FeatureFlagApprovalRequestReview"
+            "$ref": "#/definitions/ApprovalRequestReview"
           }
         },
         "notifyMemberIds": {
@@ -3582,7 +3817,7 @@
         }
       }
     },
-    "FeatureFlagApprovalRequestReview": {
+    "ApprovalRequestReview": {
       "type": "object",
       "properties": {
         "creationDate": {
@@ -3590,7 +3825,7 @@
           "description": "A unix epoch time in milliseconds specifying the date the approval request was reviewed"
         },
         "kind": {
-          "$ref": "#/definitions/FeatureFlagApprovalRequestReviewStatus"
+          "$ref": "#/definitions/ApprovalRequestReviewStatus"
         },
         "memberId": {
           "$ref": "#/definitions/Id"
@@ -3600,9 +3835,9 @@
         }
       }
     },
-    "FeatureFlagApprovalRequestReviewStatus": {
+    "ApprovalRequestReviewStatus": {
       "type": "string",
-      "description": "| Name     | Description |\n| --------:| ----------- |\n| pending  | the feature flag approval request has not been reviewed yet |\n| approved | the feature flag approval request has been approved and can now be applied |\n| declined | the feature flag approval request has been declined and cannot be applied |\n",
+      "description": "| Name     | Description |\n| --------:| ----------- |\n| pending  | the approval request has not been reviewed yet |\n| approved | the approval request has been approved and can now be applied |\n| declined | the approval request has been declined and cannot be applied |\n",
       "enum": [
         "pending",
         "approved",
@@ -5608,17 +5843,64 @@
         ]
       }
     },
-    "ScheduledFeatureFlagChangesPostRequest": {
-      "name": "scheduledFeatureFlagChangesBody",
+    "ScheduledChangeId": {
+      "name": "scheduledChangeId",
+      "in": "path",
+      "required": true,
+      "description": "The id of the scheduled change",
+      "type": "string"
+    },
+    "FlagConfigScheduledChangesConflictsBody": {
+      "name": "flagConfigScheduledChangesConflictsBody",
       "in": "body",
       "required": true,
-      "description": "Create scheduled changes on a feature flag.",
+      "description": "Used to determine if a semantic patch will result in conflicts with scheduled changes on a feature flag.",
       "schema": {
         "type": "object",
         "properties": {
           "executionDate": {
             "type": "integer",
             "description": "A unix epoch time in milliseconds specifying the date the scheduled changes will be applied"
+          },
+          "instructions": {
+            "$ref": "#/definitions/SemanticPatchInstruction"
+          }
+        }
+      }
+    },
+    "FlagConfigScheduledChangesPostBody": {
+      "name": "flagConfigScheduledChangesPostBody",
+      "in": "body",
+      "required": true,
+      "description": "Create scheduled changes on a feature flag.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "type": "string",
+            "description": "Used to describe the scheduled changes."
+          },
+          "executionDate": {
+            "type": "integer",
+            "description": "A unix epoch time in milliseconds specifying the date the scheduled changes will be applied"
+          },
+          "instructions": {
+            "$ref": "#/definitions/SemanticPatchInstruction"
+          }
+        }
+      }
+    },
+    "FlagConfigScheduledChangesPatchBody": {
+      "name": "flagConfigScheduledChangesPatchBody",
+      "in": "body",
+      "required": true,
+      "description": "Update scheduled changes on a feature flag.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "type": "string",
+            "description": "Used to describe the scheduled changes."
           },
           "instructions": {
             "$ref": "#/definitions/SemanticPatchInstruction"
@@ -6282,17 +6564,17 @@
       "format": "int64",
       "description": "An expiration time for the old relay proxy configuration key, expressed as a Unix epoch time in milliseconds. By default, the relay proxy configuration will expire immediately"
     },
-    "FeatureFlagApprovalRequestId": {
-      "name": "featureFlagApprovalRequestId",
+    "ApprovalRequestId": {
+      "name": "approvalRequestId",
       "in": "path",
       "required": true,
-      "description": "The feature flag approval request ID",
+      "description": "The approval request ID",
       "type": "string"
     },
-    "FeatureFlagApprovalRequestPostRequest": {
-      "name": "featureFlagApprovalRequestConfigBody",
+    "ApprovalRequestPostRequest": {
+      "name": "approvalRequestConfigBody",
       "in": "body",
-      "description": "Create a new feature flag approval request",
+      "description": "Create a new approval request",
       "schema": {
         "type": "object",
         "properties": {
@@ -6325,11 +6607,11 @@
         ]
       }
     },
-    "FeatureFlagApprovalRequestReviewPostRequest": {
-      "name": "featureFlagApprovalRequestReviewConfigBody",
+    "ApprovalRequestReviewPostRequest": {
+      "name": "approvalRequestReviewConfigBody",
       "in": "body",
       "required": true,
-      "description": "Review a feature flag approval request",
+      "description": "Review an approval request",
       "schema": {
         "type": "object",
         "properties": {
@@ -6354,11 +6636,11 @@
         ]
       }
     },
-    "FeatureFlagApprovalRequestApplyPostRequest": {
-      "name": "featureFlagApprovalRequestApplyConfigBody",
+    "ApprovalRequestApplyPostRequest": {
+      "name": "approvalRequestApplyConfigBody",
       "in": "body",
       "required": true,
-      "description": "Apply a new feature flag approval request",
+      "description": "Apply an approval request",
       "schema": {
         "type": "object",
         "properties": {
